@@ -182,10 +182,10 @@ class Popup extends Component {
                 height: this.height,
                 backgroundColor: background || 'transparent',
                 opacity: opacity,
-                transform: [
-                  this.state.useAnim ? {translateY: positionView} : undefined,
-                ],
               },
+              this.state.useAnim ? {transform: [
+                 {translateY: positionView} ,
+              ]} : undefined,
               containerStyle,
             ]}>
           <Animated.View
@@ -204,11 +204,11 @@ class Popup extends Component {
                     minHeight: this.state.popupHeight,
                   },
                   modalContainerStyle,
-                  {
+                  this.state.useAnim ? {
                     transform: [
-                      this.state.useAnim ? {translateY: positionPopup} : undefined,
+                       {translateY: positionPopup},
                     ],
-                  },
+                  } : undefined,
                 ]
               }
           >
