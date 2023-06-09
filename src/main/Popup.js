@@ -48,7 +48,7 @@ class Popup extends Component {
       onOpen: false,
       duration: 100,
       closeDuration: 100,
-      useAnim: false,
+      useAnim: false
     };
 
     this.state = this.defaultState;
@@ -68,6 +68,7 @@ class Popup extends Component {
     this.setState({
       ...this.defaultState,
       ...config,
+      isDisplay: true,
       start: true,
     });
   }
@@ -79,33 +80,28 @@ class Popup extends Component {
     this.setState({
       start: false,
     }, () => {
-      if(this.state.useAnim){
-        Animated.sequence([
-          Animated.timing(this.state.positionView, {
-            toValue: 0,
-            duration: this.state.duration,
-            useNativeDriver: this.state.useNativeDriver,
-          }),
-          Animated.timing(this.state.opacity, {
-            toValue: 1,
-            duration: this.state.duration * 3,
-            useNativeDriver: this.state.useNativeDriver,
-          }),
-          Animated.spring(this.state.positionPopup, {
-            toValue: (this.height / 2) - (this.state.popupHeight / 2),
-            bounciness: this.state.bounciness,
-            useNativeDriver: this.state.useNativeDriver,
-          }),
-        ]).start(() => {
-          if (typeof this.state.onOpenComplete == 'function') {
-            return this.state.onOpenComplete();
-          }
-        });
-      }else{
-          if (typeof this.state.onOpenComplete == 'function') {
-            return this.state.onOpenComplete();
-          }
-      }
+      Animated.sequence([
+        Animated.timing(this.state.positionView, {
+          toValue: 0,
+          duration: this.state.duration,
+          useNativeDriver: this.state.useNativeDriver,
+        }),
+        Animated.timing(this.state.opacity, {
+          toValue: 1,
+          duration: this.state.duration * 3,
+          useNativeDriver: this.state.useNativeDriver,
+        }),
+        Animated.spring(this.state.positionPopup, {
+          toValue: (this.height / 2) - (this.state.popupHeight / 2),
+          bounciness: this.state.bounciness,
+          useNativeDriver: this.state.useNativeDriver,
+        }),
+      ]).start(() => {
+        if (typeof this.state.onOpenComplete == 'function') {
+          return this.state.onOpenComplete();
+        }
+      });
+
       if (this.state.timing !== 0) {
         const duration = this.state.timing > 0 ? this.state.timing : 5000;
         setTimeout(() => {
@@ -120,37 +116,37 @@ class Popup extends Component {
     if (typeof onClose == 'function') {
       return onClose();
     }
-    if(this.state.useAnim){
-      Animated.sequence([
-        Animated.timing(positionPopup, {
-          toValue: this.height,
-          duration: this.state.closeDuration * 2.5,
-          useNativeDriver: this.state.useNativeDriver,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0,
-          duration: this.state.closeDuration * 3,
-          useNativeDriver: this.state.useNativeDriver,
-        }),
-        Animated.timing(positionView, {
-          toValue: this.height,
-          duration: this.state.closeDuration,
-          useNativeDriver: this.state.useNativeDriver,
-        }),
-      ]).start(() => {
-        this.setState(this.defaultState, () => {
-          if (onCloseComplete && typeof onCloseComplete == 'function') {
-            return onCloseComplete();
-          }
-        });
-      });
-    }else{
-      this.setState(this.defaultState, () => {
+    if(this.state.isDisplay){
+      this.setState({...this.defaultState, isDisplay: false}, () => {
         if (onCloseComplete && typeof onCloseComplete == 'function') {
           return onCloseComplete();
         }
       });
+      return;
     }
+    Animated.sequence([
+      Animated.timing(positionPopup, {
+        toValue: this.height,
+        duration: this.state.closeDuration * 2.5,
+        useNativeDriver: this.state.useNativeDriver,
+      }),
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: this.state.closeDuration * 3,
+        useNativeDriver: this.state.useNativeDriver,
+      }),
+      Animated.timing(positionView, {
+        toValue: this.height,
+        duration: this.state.closeDuration,
+        useNativeDriver: this.state.useNativeDriver,
+      }),
+    ]).start(() => {
+      this.setState({...this.defaultState, isDisplay: false}, () => {
+        if (onCloseComplete && typeof onCloseComplete == 'function') {
+          return onCloseComplete();
+        }
+      });
+    });
   }
 
   handleImage(type) {
@@ -178,14 +174,15 @@ class Popup extends Component {
             ref={c => this._root = c}
             style={[
               styles.Container, {
+                display: this.state.isDisplay ? 'flex' : 'none',
                 width: this.width,
                 height: this.height,
                 backgroundColor: background || 'transparent',
                 opacity: opacity,
+                transform: [
+                  {translateY: positionView},
+                ],
               },
-              this.state.useAnim ? {transform: [
-                 {translateY: positionView} ,
-              ]} : undefined,
               containerStyle,
             ]}>
           <Animated.View
@@ -204,11 +201,11 @@ class Popup extends Component {
                     minHeight: this.state.popupHeight,
                   },
                   modalContainerStyle,
-                  this.state.useAnim ? {
+                  {
                     transform: [
-                       {translateY: positionPopup},
+                      {translateY: positionPopup},
                     ],
-                  } : undefined,
+                  },
                 ]
               }
           >
