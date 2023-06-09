@@ -48,7 +48,7 @@ class Popup extends Component {
       onOpen: false,
       duration: 100,
       closeDuration: 100,
-      useAnim: true,
+      useAnim: false,
     };
 
     this.state = this.defaultState;
@@ -79,7 +79,7 @@ class Popup extends Component {
     this.setState({
       start: false,
     }, () => {
-      if(useAnim){
+      if(this.state.useAnim){
         Animated.sequence([
           Animated.timing(this.state.positionView, {
             toValue: 0,
@@ -120,7 +120,7 @@ class Popup extends Component {
     if (typeof onClose == 'function') {
       return onClose();
     }
-    if(useAnim){
+    if(this.state.useAnim){
       Animated.sequence([
         Animated.timing(positionPopup, {
           toValue: this.height,
